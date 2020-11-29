@@ -219,25 +219,30 @@ def main():
     Y_treino = []
     X_teste = []
     Y_teste = []
+
     for line in file_data:
         full_data.append(line.split(','))
+
     for i in range(int(len(full_data) * 0.7)):
         aux_vector = []
         for j in range(9):
             aux_vector.append(full_data[i][j])
         Y_treino.append(full_data[i][9])
         X_treino.append(aux_vector)
+
     for i in range(int(len(full_data) * 0.7), len(full_data)):
         aux_vector = []
         for j in range(9):
             aux_vector.append(full_data[i][j])
         Y_teste.append(full_data[i][9])
         X_teste.append(aux_vector)
+
     for i in range(len(Y_treino)):
         if(Y_treino[i] == 'positive\n'):
             Y_treino[i] = 1
         else:
             Y_treino[i] = 0
+
     for i in range(len(X_treino)):
         for j in range(len(X_treino[i])):
             if (X_treino[i][j] == 'x'):
@@ -246,11 +251,13 @@ def main():
                 X_treino[i][j] = 1
             else:
                 X_treino[i][j] = 2
+
     for i in range(len(Y_teste)):
         if(Y_teste[i] == 'positive\n'):
             Y_teste[i] = 1
         else:
             Y_teste[i] = 0
+
     for i in range(len(X_teste)):
         for j in range(len(X_teste[i])):
             if (X_teste[i][j] == 'x'):
@@ -259,36 +266,43 @@ def main():
                 X_teste[i][j] = 1
             else:
                 X_teste[i][j] = 2
-    xfinal = []
-    for line in X_treino:
-        matx = []
-        for i in range(3):
-            vetx = []
-            for j in range(3):
-                vetx.append(X_treino[i][j])
-            matx.append(vetx)
-        xfinal.append(matx)
-    X_treino = xfinal
-    X_treino = np.array(X_treino)
-    Y_treino = np.expand_dims(Y_treino, axis = 1)
-    xfinal = []
-    for line in X_teste:
-        matx = []
-        for i in range(3):
-            vetx = []
-            for j in range(3):
-                vetx.append(X_teste[i][j])
-            matx.append(vetx)
-        xfinal.append(matx)
-    X_teste = xfinal
-    X_teste = np.array(X_teste)
-    Y_teste = np.expand_dims(Y_teste, axis = 1)
-    print(X_teste)
 
+   # xfinal = []
+    #for line in X_treino:
+     #   matx = []
+      #  for i in range(3):
+       #     vetx = []
+        #    for j in range(3):
+         #       vetx.append(X_treino[i][j])
+          #  matx.append(vetx)
+        #xfinal.append(matx)
+
+    #X_treino = xfinal
+    X_treino = np.array(X_treino)[np.newaxis]
+    X_treino = X_treino.T
+    Y_treino = np.array(Y_treino)
+
+    #xfinal = []
+    #for line in X_teste:
+     #   matx = []
+      #  for i in range(3):
+       #     vetx = []
+        #    for j in range(3):
+         #       vetx.append(X_teste[i][j])
+          #  matx.append(vetx)
+        #xfinal.append(matx)
+
+    #X_teste = xfinal
+    X_teste = np.array(X_teste)[np.newaxis]
+    X_teste = X_teste.T
+    Y_teste = np.array(Y_teste)
+
+    print(Y_teste)
 
     num_iteracoes = int(input('Número de Iterações(50, 100, 1000): '))
     taxa_aprendizado = float(input('Taxa de Aprendizado(0.1, 0.01, 0.001): '))
     print_custo = int(input('(0 - False, 1 - True): '))
+
     constroi_modelo(X_treino, Y_treino, X_teste, Y_teste, num_iteracoes, taxa_aprendizado, print_custo)
 
 
