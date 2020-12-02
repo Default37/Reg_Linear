@@ -1,9 +1,20 @@
 import numpy as np
 import scipy
+from itertools import chain
+import matplotlib.pyplot as plt
 
 #Regressao Logistica implementada com vetorizacao do Numpy. Ao inves de usar loops para iterar em vetores e matrizes, 
 # as operacoes sao feitas em nivel delas. Para perfeito entendimento do codigo, recomenda-se revisao de operacoes de 
 # multiplicacao de matrizes, transposicao de matrizes, produto escalar e um pouco de entendimento de vetorizacao em numpy
+
+
+def plotter(eixoX, eixoY):
+    fig, ax = plt.subplots()
+    ax.plot(eixoX, eixoY)
+    ax.set_xlabel('Iterações')
+    ax.set_ylabel('Custo')
+    ax.set_title('Custo X Iterações')
+    plt.show()
 
 def sigmoide(z):
     """
@@ -100,6 +111,7 @@ def treina(w, b, X, Y, num_iteracoes, taxa_aprendizado, print_custo = False):
     """
     
     custos = []
+    it = []
     
     for i in range(num_iteracoes):
         
@@ -119,13 +131,14 @@ def treina(w, b, X, Y, num_iteracoes, taxa_aprendizado, print_custo = False):
         # Exibe o custo a cada 100 iteracoes, se print_custo == true
         if print_custo and i % 10 == 0:
             print ("Custo depois de interacao %i: %f" %(i, custo))
+            it.append(i)
     
     parametros = {"w": w,
               "b": b}
     
     gradientes = {"dw": dw,
              "db": db}
-    
+    plotter(it, custos)
     return parametros, gradientes, custos
 
 
@@ -212,98 +225,81 @@ def constroi_modelo(X_treino, Y_treino, X_teste, Y_teste, num_iteracoes, taxa_ap
     return d
 
 
+def _indexing(x, indices):
+    """
+    :param x: array from which indices has to be fetched
+    :param indices: indices to be fetched
+    :return: sub-array from given array and indices
+    """
+    # np array indexing
+    if hasattr(x, 'shape'):
+        return x[indices]
+
+    # list indexing
+    return [x[idx] for idx in indices]
+
+
+def train_test_split(*arrays, test_size=0.30, shufffle=True, random_seed=1):
+    """
+    splits array into train and test data.
+    :param arrays: arrays to split in train and test
+    :param test_size: size of test set in range (0,1)
+    :param shufffle: whether to shuffle arrays or not
+    :param random_seed: random seed value
+    :return: return 2*len(arrays) divided into train ans test
+    """
+    # checks
+    assert 0 < test_size < 1
+    assert len(arrays) > 0
+    length = len(arrays[0])
+    for i in arrays:
+        assert len(i) == length
+
+    n_test = int(np.ceil(length * test_size))
+    n_train = length - n_test
+
+    if shufffle:
+        perm = np.random.RandomState(random_seed).permutation(length)
+        test_indices = perm[:n_test]
+        train_indices = perm[n_test:]
+    else:
+        train_indices = np.arange(n_train)
+        test_indices = np.arange(n_train, length)
+
+    return list(chain.from_iterable((_indexing(x, train_indices), _indexing(x, test_indices)) for x in arrays))
+
+
 def main():
     file_data = open('tic-tac-toe.data', 'r')
-    full_data = []
-    X_treino = []
-    Y_treino = []
-    X_teste = []
-    Y_teste = []
+    matrix = []
+    for linha in file_data:
+        linha = linha.replace("\n", "")
+        linha = linha.replace("positive", "1")
+        linha = linha.replace("negative", "0")
+        linha = linha.replace("x", "2")
+        linha = linha.replace("o", "3")
+        linha = linha.replace("b", "4")
+        linha = linha.split(',')
+        matrix.append(linha)
 
-    for line in file_data:
-        full_data.append(line.split(','))
+    matrix = np.array(matrix)
+    matrix = np.asarray(matrix, dtype=np.float64)
 
-    for i in range(int(len(full_data) * 0.7)):
-        aux_vector = []
-        for j in range(9):
-            aux_vector.append(full_data[i][j])
-        Y_treino.append(full_data[i][9])
-        X_treino.append(aux_vector)
-
-    for i in range(int(len(full_data) * 0.7), len(full_data)):
-        aux_vector = []
-        for j in range(9):
-            aux_vector.append(full_data[i][j])
-        Y_teste.append(full_data[i][9])
-        X_teste.append(aux_vector)
-
-    for i in range(len(Y_treino)):
-        if(Y_treino[i] == 'positive\n'):
-            Y_treino[i] = 1
-        else:
-            Y_treino[i] = 0
-
-    for i in range(len(X_treino)):
-        for j in range(len(X_treino[i])):
-            if (X_treino[i][j] == 'x'):
-                X_treino[i][j] = 0
-            elif (X_treino[i][j] == 'o'):
-                X_treino[i][j] = 1
-            else:
-                X_treino[i][j] = 2
-
-    for i in range(len(Y_teste)):
-        if(Y_teste[i] == 'positive\n'):
-            Y_teste[i] = 1
-        else:
-            Y_teste[i] = 0
-
-    for i in range(len(X_teste)):
-        for j in range(len(X_teste[i])):
-            if (X_teste[i][j] == 'x'):
-                X_teste[i][j] = 0
-            elif (X_teste[i][j] == 'o'):
-                X_teste[i][j] = 1
-            else:
-                X_teste[i][j] = 2
-
-    #xfinal = []
-    #for line in X_treino:
-     #   matx = []
-      #  for i in range(3):
-       #     vetx = []
-        #    for j in range(3):
-         #       vetx.append(X_treino[i][j])
-          #  matx.append(vetx)
-        #xfinal.append(matx)
-
-    #X_treino = xfinal
-    X_treino = np.array(X_treino)[np.newaxis]
-    X_treino = X_treino.T
-    Y_treino = np.array(Y_treino)
-
-    #xfinal = []
-    #for line in X_teste:
-     #   matx = []
-      #  for i in range(3):
-       #     vetx = []
-        #    for j in range(3):
-         #       vetx.append(X_teste[i][j])
-          #  matx.append(vetx)
-        #xfinal.append(matx)
-
-    #X_teste = xfinal
-    X_teste = np.array(X_teste)[np.newaxis]
-    X_teste = X_teste.T
-    Y_teste = np.array(Y_teste)
-
-    print(Y_teste)
+    Treino, Teste = train_test_split(matrix)
+    Treino = np.transpose(Treino)
+    Teste = np.transpose(Teste)
+    X_treino = Treino[:-1, :]
+    Y_treino = Treino[-1]
+    X_teste = Teste[:-1, :]
+    Y_teste = Teste[-1]
 
     num_iteracoes = int(input('Número de Iterações(50, 100, 1000): '))
     taxa_aprendizado = float(input('Taxa de Aprendizado(0.1, 0.01, 0.001): '))
     print_custo = int(input('(0 - False, 1 - True): '))
 
     constroi_modelo(X_treino, Y_treino, X_teste, Y_teste, num_iteracoes, taxa_aprendizado, print_custo)
+
+    
 
 
 main()
