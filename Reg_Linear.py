@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 
 
 def plotter(eixoX, eixoY):
-    fig, ax = plt.subplots()
-    ax.plot(eixoX, eixoY)
-    ax.set_xlabel('Iterações')
-    ax.set_ylabel('Custo')
-    ax.set_title('Custo X Iterações')
+    axis = plt.subplots()
+    axis.plot(eixoX, eixoY)
+    axis.set_xlabel('Iterações')
+    axis.set_ylabel('Custo')
+    axis.set_title('Custo X Iterações')
     plt.show()
 
 def sigmoide(z):
@@ -226,29 +226,13 @@ def constroi_modelo(X_treino, Y_treino, X_teste, Y_teste, num_iteracoes, taxa_ap
 
 
 def _indexing(x, indices):
-    """
-    :param x: array from which indices has to be fetched
-    :param indices: indices to be fetched
-    :return: sub-array from given array and indices
-    """
-    # np array indexing
+    
     if hasattr(x, 'shape'):
         return x[indices]
-
-    # list indexing
     return [x[idx] for idx in indices]
 
 
 def train_test_split(*arrays, test_size=0.30, shufffle=True, random_seed=1):
-    """
-    splits array into train and test data.
-    :param arrays: arrays to split in train and test
-    :param test_size: size of test set in range (0,1)
-    :param shufffle: whether to shuffle arrays or not
-    :param random_seed: random seed value
-    :return: return 2*len(arrays) divided into train ans test
-    """
-    # checks
     assert 0 < test_size < 1
     assert len(arrays) > 0
     length = len(arrays[0])
