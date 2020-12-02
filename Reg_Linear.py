@@ -267,7 +267,7 @@ def main():
             else:
                 X_teste[i][j] = 2
 
-   # xfinal = []
+    #xfinal = []
     #for line in X_treino:
      #   matx = []
       #  for i in range(3):
